@@ -1,6 +1,6 @@
-# Team AI Hub
+# Hub
 
-`adobe-ai-hub` is a single-team AI operating repository. The repo itself is the team boundary.
+`hub` is a single-team AI operating repository. The repo itself is the team boundary. This POC is going to be focused on serving the _Adobe Enterprise_ team.
 
 The goal is to keep team AI assets lightweight, shareable, and portable across tools. The design target is a simple MCP-like layer: predictable folders, markdown instructions, small YAML manifests, and thin adapters.
 
