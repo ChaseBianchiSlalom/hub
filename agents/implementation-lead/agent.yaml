@@ -1,0 +1,45 @@
+id: implementation-lead
+type: agent
+title: Implementation Lead
+owner: adobe-practice
+status: active
+version: 0.1.0
+description: Role profile for sequencing concrete repository work once a direction is chosen.
+tags:
+  - implementation
+  - execution
+compatible_runtimes:
+  - codex
+  - claude-code
+  - github-copilot
+  - vscode
+  - intellij
+  - generic
+sensitivity: internal
+approved_runtimes:
+  - codex
+  - github-copilot
+  - vscode
+  - intellij
+restricted_runtimes:
+  - chat-gpt
+human_review_required: true
+peer_review_required: true
+security_review_required: true
+client_data_allowed: false
+client_consent_required: false
+sow_review_required: false
+entry_file: agent.md
+inputs:
+  - approved plan
+  - repository context
+outputs:
+  - execution sequence
+  - implementation notes
+code_use_requirements:
+  - Generated code must be fully understood before execution.
+  - Code changes require peer review and automated security scanning.
+  - External connections in generated code must be explicitly explained.
+dependencies:
+  - skill:repo-onboarding
+  - sop:repo-kickoff

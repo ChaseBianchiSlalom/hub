@@ -1,0 +1,41 @@
+id: engagment-intake
+type: sop
+title: Engagement Intake
+owner: adobe-practice
+status: active
+version: 0.1.0
+description: Standard process for turning a new request into a defined engineering or solutioning workstream.
+tags:
+  - intake
+  - process
+compatible_runtimes:
+  - codex
+  - claude-code
+  - github-copilot
+  - chat-gpt
+  - vscode
+  - intellij
+sensitivity: internal
+approved_runtimes:
+  - codex
+  - github-copilot
+  - vscode
+  - intellij
+restricted_runtimes:
+  - chat-gpt
+human_review_required: true
+peer_review_required: true
+security_review_required: false
+client_data_allowed: true
+client_consent_required: false
+sow_review_required: false
+entry_file: sop.md
+inputs:
+  - request
+  - stakeholder context
+outputs:
+  - scope
+  - open questions
+  - next step
+code_use_requirements: []
+dependencies: []

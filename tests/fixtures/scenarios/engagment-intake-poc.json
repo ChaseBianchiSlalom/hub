@@ -1,0 +1,19 @@
+{
+  "scenario_id": "engagment-intake-poc",
+  "asset_id": "engagment-intake",
+  "goal": "Frame a new AI enablement request into a defined engineering workstream.",
+  "sensitivity": "internal",
+  "contains_client_data": false,
+  "contains_personal_data": false,
+  "human_review_required": true,
+  "synthetic_data": true,
+  "context": {
+    "request": "Create a team-owned AI hub that works across Codex, ChatGPT, and VS Code.",
+    "stakeholder_context": "Practice leadership wants something teams can adopt without training on a new platform.",
+    "business_stakes": "The team wants scalable AI optimization without locking into one tool."
+  },
+  "constraints": [
+    "Keep the proposal practical",
+    "Make the next step immediately actionable"
+  ]
+}

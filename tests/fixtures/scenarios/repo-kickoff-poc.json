@@ -1,0 +1,23 @@
+{
+  "scenario_id": "repo-kickoff-poc",
+  "asset_id": "repo-kickoff",
+  "goal": "Safely enter the AI hub repository before implementation begins.",
+  "sensitivity": "internal",
+  "contains_client_data": false,
+  "contains_personal_data": false,
+  "human_review_required": true,
+  "synthetic_data": true,
+  "context": {
+    "repository": "Single-team AI hub repo with root-level canonical asset folders.",
+    "task": "Add a local CLI, scenario fixtures, adapter exports, and tests.",
+    "first_questions": [
+      "How are assets currently represented",
+      "What dependency chain already exists",
+      "What workflow surfaces do the adapters need to target"
+    ]
+  },
+  "constraints": [
+    "Understand the repo before editing",
+    "Identify likely validation and test paths up front"
+  ]
+}

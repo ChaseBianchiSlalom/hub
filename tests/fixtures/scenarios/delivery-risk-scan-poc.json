@@ -1,0 +1,23 @@
+{
+  "scenario_id": "delivery-risk-scan-poc",
+  "asset_id": "delivery-risk-scan",
+  "goal": "Identify the highest-severity risks before an AI workflow POC is socialized and implemented.",
+  "sensitivity": "internal",
+  "contains_client_data": false,
+  "contains_personal_data": false,
+  "human_review_required": true,
+  "synthetic_data": true,
+  "context": {
+    "work_plan": "Ship a thin CLI that reads canonical assets and exports tool-specific bundles.",
+    "delivery_pressure": "Leadership wants something demoable quickly.",
+    "risk_focus": [
+      "Overengineering the core contract",
+      "Mismatch between canonical assets and real tool workflows",
+      "Testing gaps in dependency resolution"
+    ]
+  },
+  "constraints": [
+    "Keep the repo easy to share",
+    "Do not rely on a heavy platform or external service"
+  ]
+}

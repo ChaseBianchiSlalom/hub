@@ -1,0 +1,23 @@
+{
+  "scenario_id": "brief-to-backlog-poc",
+  "asset_id": "brief-to-backlog",
+  "goal": "Convert an ambiguous client request into a first execution slice with visible risks.",
+  "sensitivity": "internal",
+  "contains_client_data": false,
+  "contains_personal_data": false,
+  "human_review_required": true,
+  "synthetic_data": true,
+  "context": {
+    "brief": "The client wants an AI hub that helps teams reuse prompts, instructions, and workflows across tools.",
+    "delivery_context": "The first phase is a small internal proof of concept.",
+    "known_unknowns": [
+      "How much runtime-specific packaging is actually needed",
+      "Which workflows should be standardized first"
+    ]
+  },
+  "constraints": [
+    "Keep the first slice lightweight",
+    "Avoid inventing platform complexity too early"
+  ],
+  "target_task": "Define the smallest implementation slice worth building first."
+}

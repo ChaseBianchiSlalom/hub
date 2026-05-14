@@ -1,0 +1,23 @@
+{
+  "scenario_id": "solution-architect-poc",
+  "asset_id": "solution-architect",
+  "goal": "Frame the technical approach for a lightweight AI hub POC with explicit tradeoffs.",
+  "sensitivity": "internal",
+  "contains_client_data": false,
+  "contains_personal_data": false,
+  "human_review_required": true,
+  "synthetic_data": true,
+  "context": {
+    "project_brief": "The hub should be shareable, scalable, and simple enough to behave like a light MCP.",
+    "system_context": "The first consumers are Codex, ChatGPT, and VS Code.",
+    "tradeoff_focus": [
+      "TypeScript without an external build chain",
+      "Thin adapters versus tool-native complexity",
+      "Tests that prove composition without brittleness"
+    ]
+  },
+  "constraints": [
+    "Prioritize practical portability",
+    "Avoid turning the POC into a platform"
+  ]
+}

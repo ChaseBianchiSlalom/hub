@@ -1,0 +1,45 @@
+id: brief-to-backlog
+type: skill
+title: Brief To Backlog
+owner: adobe-practice
+status: active
+version: 0.1.0
+description: Turn an ambiguous brief into a concrete execution slice with risks and open questions.
+tags:
+  - intake
+  - planning
+  - delivery
+compatible_runtimes:
+  - codex
+  - claude-code
+  - github-copilot
+  - chat-gpt
+  - vscode
+  - intellij
+  - generic
+sensitivity: internal
+approved_runtimes:
+  - codex
+  - github-copilot
+  - vscode
+  - intellij
+restricted_runtimes:
+  - chat-gpt
+human_review_required: true
+peer_review_required: true
+security_review_required: false
+client_data_allowed: false
+client_consent_required: false
+sow_review_required: false
+entry_file: skill.md
+inputs:
+  - brief
+  - constraints
+  - existing context
+outputs:
+  - goals
+  - assumptions
+  - risks
+  - first implementation slice
+code_use_requirements: []
+dependencies: []

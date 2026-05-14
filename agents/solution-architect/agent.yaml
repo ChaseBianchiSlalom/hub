@@ -1,0 +1,43 @@
+id: solution-architect
+type: agent
+title: Solution Architect
+owner: adobe-practice
+status: active
+version: 0.1.0
+description: Role profile for framing technical direction, constraints, and tradeoffs for delivery work.
+tags:
+  - architecture
+  - planning
+compatible_runtimes:
+  - codex
+  - claude-code
+  - github-copilot
+  - chat-gpt
+  - vscode
+  - intellij
+sensitivity: internal
+approved_runtimes:
+  - codex
+  - github-copilot
+  - vscode
+  - intellij
+restricted_runtimes:
+  - chat-gpt
+human_review_required: true
+peer_review_required: true
+security_review_required: false
+client_data_allowed: true
+client_consent_required: false
+sow_review_required: false
+entry_file: agent.md
+inputs:
+  - project brief
+  - system context
+outputs:
+  - approach
+  - tradeoffs
+  - recommendations
+code_use_requirements: []
+dependencies:
+  - skill:brief-to-backlog
+  - skill:delivery-risk-scan

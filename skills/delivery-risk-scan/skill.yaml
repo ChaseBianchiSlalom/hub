@@ -1,0 +1,43 @@
+id: delivery-risk-scan
+type: skill
+title: Delivery Risk Scan
+owner: adobe-practice
+status: active
+version: 0.1.0
+description: Surface execution, quality, and rollout risks before delivery work expands or ships.
+tags:
+  - risk
+  - delivery
+  - review
+compatible_runtimes:
+  - codex
+  - claude-code
+  - github-copilot
+  - chat-gpt
+  - vscode
+  - intellij
+  - generic
+sensitivity: internal
+approved_runtimes:
+  - codex
+  - github-copilot
+  - vscode
+  - intellij
+restricted_runtimes:
+  - chat-gpt
+human_review_required: true
+peer_review_required: true
+security_review_required: false
+client_data_allowed: false
+client_consent_required: false
+sow_review_required: false
+entry_file: skill.md
+inputs:
+  - work plan
+  - code context
+  - delivery constraints
+outputs:
+  - risk register
+  - mitigations
+code_use_requirements: []
+dependencies: []

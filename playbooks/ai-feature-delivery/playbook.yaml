@@ -1,0 +1,52 @@
+id: ai-feature-delivery
+type: playbook
+title: AI Feature Delivery
+owner: adobe-practice
+status: active
+version: 0.1.0
+description: Coordinate intake, solution framing, implementation planning, and risk review for AI-oriented delivery work.
+tags:
+  - ai
+  - delivery
+  - workflow
+compatible_runtimes:
+  - codex
+  - claude-code
+  - github-copilot
+  - chat-gpt
+  - vscode
+  - intellij
+sensitivity: internal
+approved_runtimes:
+  - codex
+  - github-copilot
+  - vscode
+  - intellij
+restricted_runtimes:
+  - chat-gpt
+human_review_required: true
+peer_review_required: true
+security_review_required: true
+client_data_allowed: true
+client_consent_required: false
+sow_review_required: false
+entry_file: playbook.md
+inputs:
+  - feature brief
+  - repository context
+  - delivery constraints
+outputs:
+  - scoped plan
+  - implementation path
+  - risk notes
+code_use_requirements:
+  - Code-oriented steps require peer review and automated security scanning.
+  - Client delivery use requires explicit approval and careful human review.
+dependencies:
+  - sop:engagment-intake
+  - agent:solution-architect
+  - agent:implementation-lead
+  - skill:brief-to-backlog
+  - skill:repo-onboarding
+  - skill:delivery-risk-scan
+  - sop:repo-kickoff

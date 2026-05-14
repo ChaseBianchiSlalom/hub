@@ -1,0 +1,23 @@
+tool: codex
+adapter_version: 0.1.0
+consumes:
+  - type: skill
+    source_glob: skills/*/skill.yaml
+    canonical_body: skill.md
+    runtime_shape: skill-like instruction asset
+  - type: agent
+    source_glob: agents/*/agent.yaml
+    canonical_body: agent.md
+    runtime_shape: role profile
+  - type: sop
+    source_glob: sops/*/sop.yaml
+    canonical_body: sop.md
+    runtime_shape: referenced procedure
+  - type: playbook
+    source_glob: playbooks/*/playbook.yaml
+    canonical_body: playbook.md
+    runtime_shape: task bootstrap context
+export_rules:
+  preserve_markdown: true
+  resolve_dependencies: true
+  include_runtime_compatibility_filter: true

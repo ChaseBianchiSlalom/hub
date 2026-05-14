@@ -1,0 +1,27 @@
+tool: claude-code
+adapter_version: 0.1.0
+consumes:
+  - type: skill
+    source_glob: skills/*/skill.yaml
+    canonical_body: skill.md
+    runtime_shape: instruction block or callable module
+  - type: agent
+    source_glob: agents/*/agent.yaml
+    canonical_body: agent.md
+    runtime_shape: hosted agent or workflow definition
+  - type: sop
+    source_glob: sops/*/sop.yaml
+    canonical_body: sop.md
+    runtime_shape: execution policy or procedure reference
+  - type: playbook
+    source_glob: playbooks/*/playbook.yaml
+    canonical_body: playbook.md
+    runtime_shape: packaged workflow preset
+runtime_only_fields:
+  - permission_profile
+  - deployment_target
+  - execution_timeout
+export_rules:
+  preserve_markdown: true
+  resolve_dependencies: true
+  attach_runtime_policy: true

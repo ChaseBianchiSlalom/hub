@@ -1,0 +1,19 @@
+{
+  "scenario_id": "project-operator-poc",
+  "asset_id": "project-operator",
+  "goal": "Coordinate a path from vague POC request to concrete execution steps.",
+  "sensitivity": "internal",
+  "contains_client_data": false,
+  "contains_personal_data": false,
+  "human_review_required": true,
+  "synthetic_data": true,
+  "context": {
+    "project_objective": "Prove the team AI hub can behave like a lightweight MCP layer across tools.",
+    "current_workspace": "Canonical asset repo with root-level skills, agents, sops, and playbooks.",
+    "operating_pressure": "The POC needs to feel useful immediately to a delivery team."
+  },
+  "constraints": [
+    "Do not overcomplicate the repo contract",
+    "Make dependencies and risks explicit"
+  ]
+}

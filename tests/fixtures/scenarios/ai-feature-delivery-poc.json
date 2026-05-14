@@ -1,0 +1,26 @@
+{
+  "scenario_id": "ai-feature-delivery-poc",
+  "asset_id": "ai-feature-delivery",
+  "goal": "Turn an AI feature brief into an implementation-ready delivery path for a product team.",
+  "sensitivity": "internal",
+  "contains_client_data": false,
+  "contains_personal_data": false,
+  "human_review_required": true,
+  "synthetic_data": true,
+  "context": {
+    "client_request": "Add an internal AI assistant to speed up content review and handoff.",
+    "stakeholders": [
+      "Practice lead",
+      "Product manager",
+      "Delivery team"
+    ],
+    "delivery_window": "Two-week discovery and first-slice planning window"
+  },
+  "constraints": [
+    "Stay within the existing product architecture",
+    "Keep the first slice low-risk and easy to socialize",
+    "Surface rollout and stakeholder risks early"
+  ],
+  "repository_summary": "Monorepo with a React frontend, Node backend, and shared delivery docs.",
+  "target_task": "Define the safest first slice and its likely implementation path."
+}

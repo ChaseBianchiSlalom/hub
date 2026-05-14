@@ -1,0 +1,24 @@
+{
+  "scenario_id": "implementation-lead-poc",
+  "asset_id": "implementation-lead",
+  "goal": "Sequence concrete repository work for the AI hub POC after the direction is approved.",
+  "sensitivity": "internal",
+  "contains_client_data": false,
+  "contains_personal_data": false,
+  "human_review_required": true,
+  "synthetic_data": true,
+  "context": {
+    "approved_plan": "Build a thin TypeScript CLI with demos, exports, and tests.",
+    "repository_context": "Canonical assets already exist at the repo root.",
+    "implementation_focus": [
+      "Loader and dependency graph",
+      "Adapter exports",
+      "Tests and fixtures"
+    ]
+  },
+  "constraints": [
+    "Keep the implementation dependency-free",
+    "Preserve the current canonical files as the source of truth"
+  ],
+  "repository_summary": "Small repo with canonical markdown and YAML assets but no code yet."
+}

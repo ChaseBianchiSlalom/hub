@@ -1,0 +1,14 @@
+{
+  "name": "adobe-ai-hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "hub": "./bin/hub",
+    "install-local": "node --experimental-strip-types ./src/cli.ts install-local",
+    "validate": "node --experimental-strip-types ./src/cli.ts validate",
+    "list": "node --experimental-strip-types ./src/cli.ts list",
+    "test": "node --experimental-strip-types --test tests/**/*.test.ts"
+  }
+}

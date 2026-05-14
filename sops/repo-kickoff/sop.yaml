@@ -1,0 +1,42 @@
+id: repo-kickoff
+type: sop
+title: Repo Kickoff
+owner: adobe-practice
+status: active
+version: 0.1.0
+description: Standard process for entering a new or unfamiliar repository before implementation starts.
+tags:
+  - onboarding
+  - codebase
+  - process
+compatible_runtimes:
+  - codex
+  - claude-code
+  - github-copilot
+  - vscode
+  - intellij
+  - generic
+sensitivity: internal
+approved_runtimes:
+  - codex
+  - github-copilot
+  - vscode
+  - intellij
+restricted_runtimes:
+  - chat-gpt
+human_review_required: true
+peer_review_required: true
+security_review_required: true
+client_data_allowed: false
+client_consent_required: false
+sow_review_required: false
+entry_file: sop.md
+inputs:
+  - repository
+  - task
+outputs:
+  - orientation summary
+  - likely entry points
+code_use_requirements:
+  - Understand repository structure before executing generated code or commands.
+dependencies: []
