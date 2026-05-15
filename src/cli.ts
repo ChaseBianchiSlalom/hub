@@ -1,5 +1,6 @@
 import path from "node:path";
-import { buildAssetIndex, loadAssets, validateRepo } from "./assets.ts";
+import { loadAssets, validateRepo } from "./assets.ts";
+import { exportCodexHubBundle } from "./adapters/codex.ts";
 import { exportBundle } from "./adapters/index.ts";
 import { renderAssetList, renderDemo, renderResolvedBundle } from "./render.ts";
 import { resolveAssetBundle } from "./resolve.ts";
@@ -11,7 +12,7 @@ import {
   installLocalHub,
   verifyInstalledHub,
 } from "./install.ts";
-import { installCodexGlobalBundle } from "./codex-global.ts";
+import { installCodexGlobalBundle, installCodexGlobalHub } from "./codex-global.ts";
 import type { AdapterId } from "./types.ts";
 import { isCompatibleWithAdapter } from "./utils.ts";
 
@@ -25,6 +26,8 @@ function usage(): string {
     "  hub resolve <asset-id>",
     "  hub demo <asset-id> --scenario <scenario-id>",
     "  hub export <adapter> <asset-id> --scenario <scenario-id> --out <dir>",
+    "  hub export codex",
+    "  hub export codex --out <dir>",
     "  hub export codex <asset-id> --scenario <scenario-id>",
     "  hub export codex <asset-id> --scenario <scenario-id> --out <dir>",
     "  hub export codex <asset-id> --scenario <scenario-id> --global [--codex-home <dir>]",
@@ -32,7 +35,8 @@ function usage(): string {
     "",
     "Supported adapters: generic, codex, chatgpt, vscode, github-copilot",
     "Notes:",
-    "  - codex defaults to global AGENTS.md export when --out is omitted",
+    "  - codex with no asset id exports the whole hub to global AGENTS.md",
+    "  - codex with an asset id and no --out exports that focused asset to global AGENTS.md",
     "  - other adapters require --out",
   ].join("\n");
 }
@@ -97,8 +101,8 @@ function commandDemo(repoRoot: string, assetId: string, scenarioId: string): num
 function commandExport(
   repoRoot: string,
   adapter: AdapterId,
-  assetId: string,
-  scenarioId: string,
+  assetId: string | undefined,
+  scenarioId: string | undefined,
   outDir: string | undefined,
   args: string[],
 ): number {
@@ -107,6 +111,41 @@ function commandExport(
   }
 
   const assets = loadAssets(repoRoot);
+  if (adapter === "codex" && !assetId) {
+    const incompatible = assets.filter((asset) => !isCompatibleWithAdapter(asset, adapter));
+    if (incompatible.length > 0) {
+      const refs = incompatible.map((asset) => `${asset.manifest.type}:${asset.manifest.id}`).join(", ");
+      throw new Error(`Assets are not compatible with adapter "${adapter}": ${refs}`);
+    }
+
+    if (args.includes("--global") && outDir) {
+      throw new Error("Codex export cannot use both --global and --out. Omit --out for global export.");
+    }
+
+    if (outDir) {
+      const result = exportCodexHubBundle(assets, path.resolve(repoRoot, outDir));
+      console.log(`Exported ${result.adapter} hub bundle to ${result.outDir}`);
+      console.log(result.files.map((file) => `- ${path.relative(repoRoot, file)}`).join("\n"));
+      return 0;
+    }
+
+    const result = installCodexGlobalHub(assets, getOption(args, "--codex-home"));
+    console.log(`Installed ${result.adapter} hub into Codex global context at ${result.codexHome}`);
+    console.log(`Global AGENTS file: ${result.agentsPath}`);
+    console.log(`Support directory: ${result.supportDir}`);
+    console.log("Updated files:");
+    console.log(result.files.map((file) => `- ${file}`).join("\n"));
+    return 0;
+  }
+
+  if (!assetId) {
+    throw new Error("Missing required asset id for export");
+  }
+
+  if (!scenarioId) {
+    throw new Error("Missing required option --scenario");
+  }
+
   const bundle = resolveAssetBundle(assets, assetId);
   const scenario = loadScenario(repoRoot, scenarioId);
 
@@ -208,14 +247,14 @@ function main(argv: string[]): number {
       }
       return commandDemo(repoRoot, args[0], requireOption(args, "--scenario"));
     case "export":
-      if (!args[0] || !args[1]) {
-        throw new Error("Usage: hub export <adapter> <asset-id> --scenario <scenario-id> [--out <dir>]");
+      if (!args[0]) {
+        throw new Error("Usage: hub export <adapter> [asset-id] [--scenario <scenario-id>] [--out <dir>]");
       }
       return commandExport(
         repoRoot,
         args[0] as AdapterId,
-        args[1],
-        requireOption(args, "--scenario"),
+        args[1] && !args[1].startsWith("--") ? args[1] : undefined,
+        getOption(args, "--scenario"),
         getOption(args, "--out"),
         args,
       );

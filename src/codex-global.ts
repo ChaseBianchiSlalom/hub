@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
-import { exportCodexBundle, renderCodexAgentsDocument } from "./adapters/codex.ts";
-import type { ExportResult, ResolvedAssetBundle, ScenarioInput } from "./types.ts";
+import {
+  exportCodexBundle,
+  exportCodexHubBundle,
+  renderCodexAgentsDocument,
+  renderCodexHubAgentsDocument,
+} from "./adapters/codex.ts";
+import type { AssetDocument, ExportResult, ResolvedAssetBundle, ScenarioInput } from "./types.ts";
 import { writeTextFile } from "./utils.ts";
 
 const MANAGED_BLOCK_START = "<!-- adobe-ai-hub:start -->";
@@ -71,6 +76,38 @@ export function installCodexGlobalBundle(
         assetLinkPrefix: "./ai-hub/current/context/assets",
       }),
     ),
+  ].join("\n");
+
+  const nextAgents = upsertManagedBlock(existingAgents, generatedBlock);
+  const files = [...bundleResult.files];
+  files.push(writeTextFile(agentsPath, nextAgents));
+
+  return {
+    adapter: "codex",
+    outDir: codexHome,
+    files,
+    codexHome,
+    agentsPath,
+    supportDir,
+    preservedUserContent: existingAgents.trim().length > 0,
+  };
+}
+
+export function installCodexGlobalHub(
+  assets: AssetDocument[],
+  requestedCodexHome?: string,
+): CodexGlobalInstallResult {
+  const codexHome = path.resolve(requestedCodexHome ?? defaultCodexHome());
+  const supportDir = path.join(codexHome, "ai-hub", "current");
+  const bundleResult = exportCodexHubBundle(assets, supportDir);
+  const agentsPath = path.join(codexHome, "AGENTS.md");
+  const existingAgents = fs.existsSync(agentsPath) ? fs.readFileSync(agentsPath, "utf8") : "";
+  const generatedBlock = [
+    "## Adobe AI Hub",
+    "",
+    "<!-- Generated. Edit the AI Hub repo, not this block. -->",
+    "",
+    stripLeadingHeading(renderCodexHubAgentsDocument(assets)),
   ].join("\n");
 
   const nextAgents = upsertManagedBlock(existingAgents, generatedBlock);

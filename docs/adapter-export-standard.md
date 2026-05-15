@@ -156,7 +156,8 @@ Why:
 
 Codex is the model here:
 
-- default: global export
+- default: whole-hub global export
+- focused mode: asset and scenario global export
 - explicit fallback: `--out <dir>`
 
 ### 10. Fail Fast On Ambiguous Commands
@@ -240,6 +241,8 @@ Avoid these:
 Codex is the current reference pattern:
 
 - default export target is the tool's global context
+- the no-asset command exports the whole hub
+- asset and scenario arguments narrow the export to a focused bundle
 - global instructions are preserved
 - only a managed block is replaced
 - supporting files are regenerated into a stable runtime-owned folder

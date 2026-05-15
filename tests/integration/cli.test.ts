@@ -97,6 +97,33 @@ test("hub export codex creates AGENTS.md with resolved dependencies", () => {
   assert.match(agentsMd, /delivery-risk-scan/);
 });
 
+test("hub export codex with no asset exports the whole hub globally", () => {
+  const codexHome = fs.mkdtempSync(path.join(os.tmpdir(), "hub-codex-full-home-"));
+  const output = runCli(["export", "codex"], { CODEX_HOME: codexHome });
+
+  assert.match(output, /Installed codex hub into Codex global context/);
+  const agentsMd = fs.readFileSync(path.join(codexHome, "AGENTS.md"), "utf8");
+  assert.match(agentsMd, /Brief To Backlog/);
+  assert.match(agentsMd, /Project Operator/);
+  assert.match(agentsMd, /AI Feature Delivery/);
+  assert.ok(
+    fs.existsSync(
+      path.join(codexHome, "ai-hub", "current", "context", "assets", "playbook-ai-feature-delivery.md"),
+    ),
+  );
+});
+
+test("hub export codex --out with no asset creates a whole-hub local bundle", () => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-codex-full-out-"));
+  const output = runCli(["export", "codex", "--out", outDir]);
+
+  assert.match(output, /Exported codex hub bundle/);
+  const agentsMd = fs.readFileSync(path.join(outDir, "AGENTS.md"), "utf8");
+  assert.match(agentsMd, /Canonical Assets/);
+  assert.match(agentsMd, /Repo Onboarding/);
+  assert.ok(fs.existsSync(path.join(outDir, "context", "assets", "agent-solution-architect.md")));
+});
+
 test("hub export codex defaults to global AGENTS.md when --out is omitted", () => {
   const codexHome = fs.mkdtempSync(path.join(os.tmpdir(), "hub-codex-default-home-"));
   const output = runCli(

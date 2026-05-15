@@ -1,6 +1,6 @@
-# Hub
+# Team AI Hub
 
-`hub` is a single-team AI operating repository. The repo itself is the team boundary. This POC is going to be focused on serving the _Adobe Enterprise_ team.
+`adobe-ai-hub` is a single-team AI operating repository. The repo itself is the team boundary.
 
 The goal is to keep team AI assets lightweight, shareable, and portable across tools. The design target is a simple MCP-like layer: predictable folders, markdown instructions, small YAML manifests, and thin adapters.
 
@@ -91,7 +91,9 @@ Run the local CLI directly:
 ./bin/hub list
 ./bin/hub resolve ai-feature-delivery
 ./bin/hub demo project-operator --scenario project-operator-poc
+./bin/hub export codex
 ./bin/hub export codex project-operator --scenario project-operator-poc
+./bin/hub export codex --out /tmp/codex-hub
 ./bin/hub export codex project-operator --scenario project-operator-poc --out /tmp/project-operator-codex
 ./bin/hub export github-copilot project-operator --scenario project-operator-poc --out /tmp/project-operator-copilot
 ./bin/hub install-local --shell-setup
@@ -107,17 +109,26 @@ Supported export adapters:
 
 ## Codex Global Context
 
-`codex` now defaults to your global Codex context when `--out` is omitted:
+`codex` now exports the whole hub to your global Codex context when no asset is provided:
+
+```bash
+hub export codex
+```
+
+This installs all Codex-compatible assets into `~/.codex/AGENTS.md` and writes supporting files under `~/.codex/ai-hub/current/`.
+
+For a focused global export, provide an asset and scenario:
 
 ```bash
 hub export codex project-operator --scenario project-operator-poc
 ```
 
-This writes supporting files under `~/.codex/ai-hub/current/` and updates only a managed AI Hub block inside `~/.codex/AGENTS.md`.
+Both global forms update only a managed AI Hub block inside `~/.codex/AGENTS.md`.
 
 If you want a repo-local or temp export bundle instead, pass `--out` explicitly:
 
 ```bash
+hub export codex --out /tmp/codex-hub
 hub export codex project-operator --scenario project-operator-poc --out /tmp/project-operator-codex
 ```
 

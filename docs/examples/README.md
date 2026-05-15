@@ -15,5 +15,6 @@ Run examples locally with:
 
 ```bash
 ./bin/hub demo brief-to-backlog --scenario brief-to-backlog-poc
+./bin/hub export codex
 ./bin/hub export codex project-operator --scenario project-operator-poc
 ```
