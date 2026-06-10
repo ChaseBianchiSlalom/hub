@@ -11,6 +11,43 @@ This repository now includes a local TypeScript POC CLI that can:
 - run scenario-backed demos
 - export working bundles for `generic`, `codex`, `claude-code`, `chatgpt`, `vscode`, and `github-copilot`
 
+## Install
+
+From the repo root, install the `ai-hub` command into `~/bin`:
+
+```bash
+./bin/ai-hub install-local --shell-setup
+```
+
+This creates `~/bin/ai-hub`. The `--shell-setup` flag also adds `~/bin` to your shell rc file when needed. For zsh, that is usually `~/.zshrc`.
+
+If your current terminal has not picked up the PATH update yet, run:
+
+```bash
+source ~/.zshrc
+```
+
+Verify the installed command:
+
+```bash
+ai-hub validate
+ai-hub list
+```
+
+The helper script runs the same standard install path:
+
+```bash
+./scripts/install-local.sh
+```
+
+To install somewhere else:
+
+```bash
+./bin/ai-hub install-local --bin-dir /path/to/bin
+```
+
+If an unrelated file already exists at the target path, the installer stops instead of replacing it. Use `--force` only when you intentionally want to replace the existing target.
+
 ## Structure
 
 ```text
@@ -84,25 +121,30 @@ If a runtime can read files, parse YAML, and follow references, it should be abl
 
 ## POC CLI
 
-Run the local CLI directly:
+After install, use `ai-hub` directly:
+
+```bash
+ai-hub validate
+ai-hub list
+ai-hub resolve ai-feature-delivery
+ai-hub demo project-operator --scenario project-operator-poc
+ai-hub export codex
+ai-hub export codex project-operator --scenario project-operator-poc
+ai-hub export codex --out /tmp/codex-hub
+ai-hub export codex project-operator --scenario project-operator-poc --out /tmp/project-operator-codex
+ai-hub export claude-code
+ai-hub export claude-code project-operator --scenario project-operator-poc
+ai-hub export claude-code --out /tmp/claude-hub
+ai-hub export claude-code project-operator --scenario project-operator-poc --out /tmp/project-operator-claude
+ai-hub export github-copilot
+ai-hub export github-copilot --out /tmp/copilot-hub
+ai-hub export github-copilot project-operator --scenario project-operator-poc --out /tmp/project-operator-copilot
+```
+
+Without installing, prefix commands with the repo-local entrypoint:
 
 ```bash
 ./bin/ai-hub validate
-./bin/ai-hub list
-./bin/ai-hub resolve ai-feature-delivery
-./bin/ai-hub demo project-operator --scenario project-operator-poc
-./bin/ai-hub export codex
-./bin/ai-hub export codex project-operator --scenario project-operator-poc
-./bin/ai-hub export codex --out /tmp/codex-hub
-./bin/ai-hub export codex project-operator --scenario project-operator-poc --out /tmp/project-operator-codex
-./bin/ai-hub export claude-code
-./bin/ai-hub export claude-code project-operator --scenario project-operator-poc
-./bin/ai-hub export claude-code --out /tmp/claude-hub
-./bin/ai-hub export claude-code project-operator --scenario project-operator-poc --out /tmp/project-operator-claude
-./bin/ai-hub export github-copilot
-./bin/ai-hub export github-copilot --out /tmp/copilot-hub
-./bin/ai-hub export github-copilot project-operator --scenario project-operator-poc --out /tmp/project-operator-copilot
-./bin/ai-hub install-local --shell-setup
 ```
 
 Supported export adapters:
@@ -222,29 +264,13 @@ You can target alternate install locations for testing:
 ai-hub export github-copilot --copilot-home /tmp/copilot-home --jetbrains-copilot-dir /tmp/jetbrains-copilot
 ```
 
-## Local Install
-
-To make `ai-hub` available from anywhere on your laptop, create a local wrapper into a bin directory:
-
-```bash
-./bin/ai-hub install-local --shell-setup
-```
-
-You can also use:
-
-```bash
-./scripts/install-local.sh
-```
-
-By default this installs to `~/bin` and updates your shell rc file idempotently.
-
 ## Validation
 
 Run:
 
 ```bash
 ./scripts/validate-hub.sh
-./bin/ai-hub validate
+ai-hub validate
 node --experimental-strip-types --test tests/**/*.test.ts
 ```
 
