@@ -1,6 +1,8 @@
 import path from "node:path";
 import { loadAssets, validateRepo } from "./assets.ts";
+import { exportClaudeCodeHubBundle } from "./adapters/claude-code.ts";
 import { exportCodexHubBundle } from "./adapters/codex.ts";
+import { exportGitHubCopilotHubBundle } from "./adapters/github-copilot.ts";
 import { exportBundle } from "./adapters/index.ts";
 import { renderAssetList, renderDemo, renderResolvedBundle } from "./render.ts";
 import { resolveAssetBundle } from "./resolve.ts";
@@ -10,33 +12,53 @@ import {
   defaultShellRcPath,
   ensureShellPathConfigured,
   installLocalHub,
+  LOCAL_COMMAND_NAME,
   verifyInstalledHub,
 } from "./install.ts";
+import { installClaudeCodeGlobalBundle, installClaudeCodeGlobalHub } from "./claude-code-global.ts";
 import { installCodexGlobalBundle, installCodexGlobalHub } from "./codex-global.ts";
+import { installGitHubCopilotGlobalHub } from "./github-copilot-global.ts";
 import type { AdapterId } from "./types.ts";
 import { isCompatibleWithAdapter } from "./utils.ts";
 
-const SUPPORTED_ADAPTERS: AdapterId[] = ["generic", "codex", "chatgpt", "vscode", "github-copilot"];
+const SUPPORTED_ADAPTERS: AdapterId[] = [
+  "generic",
+  "codex",
+  "claude-code",
+  "chatgpt",
+  "vscode",
+  "github-copilot",
+];
 
 function usage(): string {
   return [
     "Usage:",
-    "  hub validate",
-    "  hub list",
-    "  hub resolve <asset-id>",
-    "  hub demo <asset-id> --scenario <scenario-id>",
-    "  hub export <adapter> <asset-id> --scenario <scenario-id> --out <dir>",
-    "  hub export codex",
-    "  hub export codex --out <dir>",
-    "  hub export codex <asset-id> --scenario <scenario-id>",
-    "  hub export codex <asset-id> --scenario <scenario-id> --out <dir>",
-    "  hub export codex <asset-id> --scenario <scenario-id> --global [--codex-home <dir>]",
-    "  hub install-local [--bin-dir <dir>] [--shell-setup] [--shell-rc <path>] [--force]",
+    `  ${LOCAL_COMMAND_NAME} validate`,
+    `  ${LOCAL_COMMAND_NAME} list`,
+    `  ${LOCAL_COMMAND_NAME} resolve <asset-id>`,
+    `  ${LOCAL_COMMAND_NAME} demo <asset-id> --scenario <scenario-id>`,
+    `  ${LOCAL_COMMAND_NAME} export <adapter> <asset-id> --scenario <scenario-id> --out <dir>`,
+    `  ${LOCAL_COMMAND_NAME} export codex`,
+    `  ${LOCAL_COMMAND_NAME} export codex --out <dir>`,
+    `  ${LOCAL_COMMAND_NAME} export codex <asset-id> --scenario <scenario-id>`,
+    `  ${LOCAL_COMMAND_NAME} export codex <asset-id> --scenario <scenario-id> --out <dir>`,
+    `  ${LOCAL_COMMAND_NAME} export codex <asset-id> --scenario <scenario-id> --global [--codex-home <dir>]`,
+    `  ${LOCAL_COMMAND_NAME} export claude-code`,
+    `  ${LOCAL_COMMAND_NAME} export claude-code --out <dir>`,
+    `  ${LOCAL_COMMAND_NAME} export claude-code <asset-id> --scenario <scenario-id>`,
+    `  ${LOCAL_COMMAND_NAME} export claude-code <asset-id> --scenario <scenario-id> --out <dir>`,
+    `  ${LOCAL_COMMAND_NAME} export github-copilot`,
+    `  ${LOCAL_COMMAND_NAME} export github-copilot --out <dir>`,
+    `  ${LOCAL_COMMAND_NAME} export github-copilot <asset-id> --scenario <scenario-id> --out <dir>`,
+    `  ${LOCAL_COMMAND_NAME} install-local [--bin-dir <dir>] [--shell-setup] [--shell-rc <path>] [--force]`,
     "",
-    "Supported adapters: generic, codex, chatgpt, vscode, github-copilot",
+    "Supported adapters: generic, codex, claude-code, chatgpt, vscode, github-copilot",
     "Notes:",
     "  - codex with no asset id exports the whole hub to global AGENTS.md",
     "  - codex with an asset id and no --out exports that focused asset to global AGENTS.md",
+    "  - claude-code with no asset id exports the whole hub to global CLAUDE.md",
+    "  - claude-code with an asset id and no --out exports that focused asset to global CLAUDE.md",
+    "  - github-copilot with no asset id installs whole-hub instructions for VS Code and JetBrains",
     "  - other adapters require --out",
   ].join("\n");
 }
@@ -111,6 +133,75 @@ function commandExport(
   }
 
   const assets = loadAssets(repoRoot);
+  if (adapter === "claude-code" && !assetId) {
+    const incompatible = assets.filter((asset) => !isCompatibleWithAdapter(asset, adapter));
+    if (incompatible.length > 0) {
+      const refs = incompatible.map((asset) => `${asset.manifest.type}:${asset.manifest.id}`).join(", ");
+      throw new Error(`Assets are not compatible with adapter "${adapter}": ${refs}`);
+    }
+
+    if (args.includes("--global") && outDir) {
+      throw new Error("Claude Code export cannot use both --global and --out. Omit --out for global export.");
+    }
+
+    if (scenarioId) {
+      throw new Error("Claude Code whole-hub export does not use --scenario. Provide an asset id for focused exports.");
+    }
+
+    if (outDir) {
+      const result = exportClaudeCodeHubBundle(assets, path.resolve(repoRoot, outDir));
+      console.log(`Exported ${result.adapter} hub bundle to ${result.outDir}`);
+      console.log(result.files.map((file) => `- ${path.relative(repoRoot, file)}`).join("\n"));
+      return 0;
+    }
+
+    const result = installClaudeCodeGlobalHub(assets, getOption(args, "--claude-home"));
+    console.log(`Installed ${result.adapter} hub into Claude Code global memory at ${result.claudeHome}`);
+    console.log(`Global CLAUDE file: ${result.memoryPath}`);
+    console.log(`Support directory: ${result.supportDir}`);
+    console.log("Updated files:");
+    console.log(result.files.map((file) => `- ${file}`).join("\n"));
+    return 0;
+  }
+
+  if (adapter === "github-copilot" && !assetId) {
+    const incompatible = assets.filter((asset) => !isCompatibleWithAdapter(asset, adapter));
+    if (incompatible.length > 0) {
+      const refs = incompatible.map((asset) => `${asset.manifest.type}:${asset.manifest.id}`).join(", ");
+      throw new Error(`Assets are not compatible with adapter "${adapter}": ${refs}`);
+    }
+
+    if (args.includes("--global") && outDir) {
+      throw new Error(
+        "GitHub Copilot export cannot use both --global and --out. Omit --out for global export.",
+      );
+    }
+
+    if (scenarioId) {
+      throw new Error("GitHub Copilot whole-hub export does not use --scenario. Provide an asset id for focused exports.");
+    }
+
+    if (outDir) {
+      const result = exportGitHubCopilotHubBundle(assets, path.resolve(repoRoot, outDir));
+      console.log(`Exported ${result.adapter} hub bundle to ${result.outDir}`);
+      console.log(result.files.map((file) => `- ${path.relative(repoRoot, file)}`).join("\n"));
+      return 0;
+    }
+
+    const result = installGitHubCopilotGlobalHub(
+      assets,
+      getOption(args, "--copilot-home"),
+      getOption(args, "--jetbrains-copilot-dir"),
+    );
+    console.log(`Installed ${result.adapter} hub into GitHub Copilot global contexts`);
+    console.log(`VS Code user instructions: ${result.vscodeInstructionsPath}`);
+    console.log(`JetBrains global instructions: ${result.jetbrainsInstructionsPath}`);
+    console.log(`Support directory: ${result.supportDir}`);
+    console.log("Updated files:");
+    console.log(result.files.map((file) => `- ${file}`).join("\n"));
+    return 0;
+  }
+
   if (adapter === "codex" && !assetId) {
     const incompatible = assets.filter((asset) => !isCompatibleWithAdapter(asset, adapter));
     if (incompatible.length > 0) {
@@ -162,8 +253,12 @@ function commandExport(
   }
 
   const wantsCodexGlobal = adapter === "codex" && (!outDir || args.includes("--global"));
+  const wantsClaudeGlobal = adapter === "claude-code" && (!outDir || args.includes("--global"));
   if (adapter === "codex" && args.includes("--global") && outDir) {
     throw new Error('Codex export cannot use both --global and --out. Omit --out for global export.');
+  }
+  if (adapter === "claude-code" && args.includes("--global") && outDir) {
+    throw new Error("Claude Code export cannot use both --global and --out. Omit --out for global export.");
   }
 
   if (wantsCodexGlobal) {
@@ -176,7 +271,23 @@ function commandExport(
     return 0;
   }
 
+  if (wantsClaudeGlobal) {
+    const result = installClaudeCodeGlobalBundle(bundle, scenario, getOption(args, "--claude-home"));
+    console.log(`Installed ${result.adapter} bundle into Claude Code global memory at ${result.claudeHome}`);
+    console.log(`Global CLAUDE file: ${result.memoryPath}`);
+    console.log(`Support directory: ${result.supportDir}`);
+    console.log("Updated files:");
+    console.log(result.files.map((file) => `- ${file}`).join("\n"));
+    return 0;
+  }
+
   if (!outDir) {
+    if (adapter === "github-copilot") {
+      throw new Error(
+        "Focused GitHub Copilot exports require --out. Omit the asset id to install the whole hub globally.",
+      );
+    }
+
     throw new Error("Missing required option --out");
   }
 
@@ -194,7 +305,7 @@ function commandInstallLocal(repoRoot: string, args: string[]): number {
   const result = installLocalHub(repoRoot, binDir, force);
   verifyInstalledHub(result.binaryPath);
 
-  console.log(`Installed hub command at ${result.binaryPath}`);
+  console.log(`Installed ${LOCAL_COMMAND_NAME} command at ${result.binaryPath}`);
   console.log(`Source: ${result.sourcePath}`);
   console.log(`Bin directory: ${result.binDir}`);
   console.log(`Install mode: ${result.installMode}`);
@@ -248,7 +359,9 @@ function main(argv: string[]): number {
       return commandDemo(repoRoot, args[0], requireOption(args, "--scenario"));
     case "export":
       if (!args[0]) {
-        throw new Error("Usage: hub export <adapter> [asset-id] [--scenario <scenario-id>] [--out <dir>]");
+        throw new Error(
+          `Usage: ${LOCAL_COMMAND_NAME} export <adapter> [asset-id] [--scenario <scenario-id>] [--out <dir>]`,
+        );
       }
       return commandExport(
         repoRoot,

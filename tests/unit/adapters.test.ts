@@ -30,6 +30,7 @@ test("adapters generate expected files and stable sections", () => {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-adapter-test-"));
 
   const codex = exportBundle("codex", bundle, scenario, path.join(outDir, "codex"));
+  const claudeCode = exportBundle("claude-code", bundle, scenario, path.join(outDir, "claude-code"));
   const chatgpt = exportBundle(
     "chatgpt",
     resolveAssetBundle(assets, "solution-architect"),
@@ -50,6 +51,7 @@ test("adapters generate expected files and stable sections", () => {
   );
 
   assert.ok(codex.files.some((file) => file.endsWith("AGENTS.md")));
+  assert.ok(claudeCode.files.some((file) => file.endsWith("CLAUDE.md")));
   assert.ok(chatgpt.files.some((file) => file.endsWith("gpt-instructions.md")));
   assert.ok(copilot.files.some((file) => file.endsWith(".github/copilot-instructions.md")));
   assert.ok(vscode.files.some((file) => file.endsWith("workspace-context.md")));
@@ -57,6 +59,10 @@ test("adapters generate expected files and stable sections", () => {
   const agentsMd = fs.readFileSync(path.join(outDir, "codex", "AGENTS.md"), "utf8");
   assert.match(agentsMd, /project-operator/);
   assert.match(agentsMd, /brief-to-backlog/);
+
+  const claudeMd = fs.readFileSync(path.join(outDir, "claude-code", "CLAUDE.md"), "utf8");
+  assert.match(claudeMd, /project-operator/);
+  assert.match(claudeMd, /@\.\/context\/assets\/skill-brief-to-backlog\.md/);
 
   const promptStarters = JSON.parse(
     fs.readFileSync(path.join(outDir, "chatgpt", "prompt-starters.json"), "utf8"),
