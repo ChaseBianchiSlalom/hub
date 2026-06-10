@@ -1,6 +1,6 @@
 # Team AI Hub
 
-`adobe-ai-hub` is a single-team AI operating repository. The repo itself is the team boundary.
+`Hub` is a single-team AI operating repository. The repo itself is the team boundary. This repo is the pilot made for the **AEM Team**.
 
 The goal is to keep team AI assets lightweight, shareable, and portable across tools. The design target is a simple MCP-like layer: predictable folders, markdown instructions, small YAML manifests, and thin adapters.
 
