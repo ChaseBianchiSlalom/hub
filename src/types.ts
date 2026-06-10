@@ -1,6 +1,6 @@
 export type AssetType = "skill" | "agent" | "sop" | "playbook";
 
-export type AdapterId = "generic" | "codex" | "chatgpt" | "vscode" | "github-copilot";
+export type AdapterId = "generic" | "codex" | "claude-code" | "chatgpt" | "vscode" | "github-copilot";
 
 export type SensitivityLevel = "public" | "internal" | "confidential" | "client-restricted";
 

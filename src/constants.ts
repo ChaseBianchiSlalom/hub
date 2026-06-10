@@ -34,6 +34,7 @@ export const ASSET_DIRECTORIES: AssetDirectoryConfig[] = [
 export const ADAPTER_RUNTIME_LABELS: Record<AdapterId, string> = {
   generic: "generic",
   codex: "codex",
+  "claude-code": "claude-code",
   chatgpt: "chat-gpt",
   vscode: "vscode",
   "github-copilot": "github-copilot",

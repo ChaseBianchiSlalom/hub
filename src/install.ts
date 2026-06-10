@@ -28,6 +28,8 @@ export function defaultBinDir(): string {
   return path.join(resolveHomeDir(), "bin");
 }
 
+export const LOCAL_COMMAND_NAME = "ai-hub";
+
 export function defaultShellRcPath(): string {
   const shell = process.env.SHELL ?? "";
   if (shell.includes("zsh")) {
@@ -56,13 +58,13 @@ export function installLocalHub(
   requestedBinDir: string,
   force = false,
 ): InstallResult {
-  const sourcePath = path.join(repoRoot, "bin", "hub");
+  const sourcePath = path.join(repoRoot, "bin", LOCAL_COMMAND_NAME);
   if (!fs.existsSync(sourcePath)) {
     throw new Error(`Hub entrypoint not found at ${sourcePath}`);
   }
 
   const binDir = path.resolve(repoRoot, requestedBinDir);
-  const binaryPath = path.join(binDir, "hub");
+  const binaryPath = path.join(binDir, LOCAL_COMMAND_NAME);
 
   fs.mkdirSync(binDir, { recursive: true });
 
@@ -72,7 +74,13 @@ export function installLocalHub(
     if (existingEntry.isFile()) {
       const currentContents = fs.readFileSync(binaryPath, "utf8");
       if (currentContents.includes(sourcePath)) {
-        return { binaryPath, sourcePath, binDir, replaced: false, installMode: "wrapper" };
+        return {
+          binaryPath,
+          sourcePath,
+          binDir,
+          replaced: false,
+          installMode: "wrapper",
+        };
       }
     }
 

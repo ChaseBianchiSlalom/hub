@@ -75,7 +75,7 @@ Recommended policy:
   - `human_review_required: true`
   - `peer_review_required: true`
   - `security_review_required: true` for code-producing workflows
-- Surface these flags in `hub demo` and all exports.
+- Surface these flags in `ai-hub demo` and all exports.
 
 Why this is worth it:
 
@@ -186,7 +186,7 @@ These may become appropriate later, but they are too heavy for a useful V1.
 
 ### Phase 2: Validation
 
-- extend `hub validate` to require the new metadata fields
+- extend `ai-hub validate` to require the new metadata fields
 - validate that high-risk scenarios do not omit required review/approval flags
 
 ### Phase 3: Documentation And Templates

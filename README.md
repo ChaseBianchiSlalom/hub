@@ -9,7 +9,7 @@ This repository now includes a local TypeScript POC CLI that can:
 - discover canonical assets
 - resolve asset dependencies
 - run scenario-backed demos
-- export working bundles for `generic`, `codex`, `chatgpt`, `vscode`, and `github-copilot`
+- export working bundles for `generic`, `codex`, `claude-code`, `chatgpt`, `vscode`, and `github-copilot`
 
 ## Structure
 
@@ -87,22 +87,29 @@ If a runtime can read files, parse YAML, and follow references, it should be abl
 Run the local CLI directly:
 
 ```bash
-./bin/hub validate
-./bin/hub list
-./bin/hub resolve ai-feature-delivery
-./bin/hub demo project-operator --scenario project-operator-poc
-./bin/hub export codex
-./bin/hub export codex project-operator --scenario project-operator-poc
-./bin/hub export codex --out /tmp/codex-hub
-./bin/hub export codex project-operator --scenario project-operator-poc --out /tmp/project-operator-codex
-./bin/hub export github-copilot project-operator --scenario project-operator-poc --out /tmp/project-operator-copilot
-./bin/hub install-local --shell-setup
+./bin/ai-hub validate
+./bin/ai-hub list
+./bin/ai-hub resolve ai-feature-delivery
+./bin/ai-hub demo project-operator --scenario project-operator-poc
+./bin/ai-hub export codex
+./bin/ai-hub export codex project-operator --scenario project-operator-poc
+./bin/ai-hub export codex --out /tmp/codex-hub
+./bin/ai-hub export codex project-operator --scenario project-operator-poc --out /tmp/project-operator-codex
+./bin/ai-hub export claude-code
+./bin/ai-hub export claude-code project-operator --scenario project-operator-poc
+./bin/ai-hub export claude-code --out /tmp/claude-hub
+./bin/ai-hub export claude-code project-operator --scenario project-operator-poc --out /tmp/project-operator-claude
+./bin/ai-hub export github-copilot
+./bin/ai-hub export github-copilot --out /tmp/copilot-hub
+./bin/ai-hub export github-copilot project-operator --scenario project-operator-poc --out /tmp/project-operator-copilot
+./bin/ai-hub install-local --shell-setup
 ```
 
 Supported export adapters:
 
 - `generic`
 - `codex`
+- `claude-code`
 - `chatgpt`
 - `vscode`
 - `github-copilot`
@@ -112,7 +119,7 @@ Supported export adapters:
 `codex` now exports the whole hub to your global Codex context when no asset is provided:
 
 ```bash
-hub export codex
+ai-hub export codex
 ```
 
 This installs all Codex-compatible assets into `~/.codex/AGENTS.md` and writes supporting files under `~/.codex/ai-hub/current/`.
@@ -120,7 +127,7 @@ This installs all Codex-compatible assets into `~/.codex/AGENTS.md` and writes s
 For a focused global export, provide an asset and scenario:
 
 ```bash
-hub export codex project-operator --scenario project-operator-poc
+ai-hub export codex project-operator --scenario project-operator-poc
 ```
 
 Both global forms update only a managed AI Hub block inside `~/.codex/AGENTS.md`.
@@ -128,8 +135,8 @@ Both global forms update only a managed AI Hub block inside `~/.codex/AGENTS.md`
 If you want a repo-local or temp export bundle instead, pass `--out` explicitly:
 
 ```bash
-hub export codex --out /tmp/codex-hub
-hub export codex project-operator --scenario project-operator-poc --out /tmp/project-operator-codex
+ai-hub export codex --out /tmp/codex-hub
+ai-hub export codex project-operator --scenario project-operator-poc --out /tmp/project-operator-codex
 ```
 
 Your existing `~/.codex/AGENTS.md` content is preserved. The installer replaces only the section between:
@@ -143,15 +150,84 @@ Your existing `~/.codex/AGENTS.md` content is preserved. The installer replaces 
 You can target a different Codex home for testing:
 
 ```bash
-hub export codex project-operator --scenario project-operator-poc --codex-home /tmp/codex-home
+ai-hub export codex project-operator --scenario project-operator-poc --codex-home /tmp/codex-home
+```
+
+## Claude Code Memory
+
+`claude-code` exports the whole hub to your Claude Code user memory when no asset is provided:
+
+```bash
+ai-hub export claude-code
+```
+
+This installs all Claude Code-compatible assets into `~/.claude/CLAUDE.md` and writes supporting files under `~/.claude/ai-hub/current/`.
+
+For a focused global export, provide an asset and scenario:
+
+```bash
+ai-hub export claude-code project-operator --scenario project-operator-poc
+```
+
+Both global forms update only a managed AI Hub block inside `~/.claude/CLAUDE.md`. Existing Claude memory outside the managed block is preserved.
+
+If you want a repo-local or temp export bundle instead, pass `--out` explicitly:
+
+```bash
+ai-hub export claude-code --out /tmp/claude-hub
+ai-hub export claude-code project-operator --scenario project-operator-poc --out /tmp/project-operator-claude
+```
+
+The generated `CLAUDE.md` uses Claude Code's `@path` import syntax to load supporting asset files from the generated `context/assets/` directory.
+
+You can target a different Claude home for testing:
+
+```bash
+ai-hub export claude-code --claude-home /tmp/claude-home
+```
+
+## GitHub Copilot Context
+
+`github-copilot` exports the whole hub to local GitHub Copilot instruction surfaces when no asset is provided:
+
+```bash
+ai-hub export github-copilot
+```
+
+This writes:
+
+- VS Code user instructions: `~/.copilot/instructions/adobe-ai-hub.instructions.md`
+- JetBrains global instructions: `~/.config/github-copilot/intellij/global-copilot-instructions.md`
+- supporting generated context: `~/.copilot/ai-hub/current/`
+
+The JetBrains file is updated through a managed AI Hub block, so existing global Copilot instructions outside the block are preserved. The VS Code file is adapter-owned and can be regenerated safely.
+
+For a repository-ready bundle instead, pass `--out`:
+
+```bash
+ai-hub export github-copilot --out /tmp/copilot-hub
+```
+
+That bundle contains `.github/copilot-instructions.md`, `.github/instructions/adobe-ai-hub.instructions.md`, `.github/prompts/adobe-ai-hub.prompt.md`, and `.github/ai-hub/` support files.
+
+For a focused scenario bundle:
+
+```bash
+ai-hub export github-copilot project-operator --scenario project-operator-poc --out /tmp/project-operator-copilot
+```
+
+You can target alternate install locations for testing:
+
+```bash
+ai-hub export github-copilot --copilot-home /tmp/copilot-home --jetbrains-copilot-dir /tmp/jetbrains-copilot
 ```
 
 ## Local Install
 
-To make `hub` available from anywhere on your laptop, create a local symlink into a bin directory:
+To make `ai-hub` available from anywhere on your laptop, create a local wrapper into a bin directory:
 
 ```bash
-./bin/hub install-local --shell-setup
+./bin/ai-hub install-local --shell-setup
 ```
 
 You can also use:
@@ -168,7 +244,7 @@ Run:
 
 ```bash
 ./scripts/validate-hub.sh
-./bin/hub validate
+./bin/ai-hub validate
 node --experimental-strip-types --test tests/**/*.test.ts
 ```
 

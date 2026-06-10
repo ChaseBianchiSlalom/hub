@@ -51,10 +51,14 @@ export function adapterDisplayName(adapter: AdapterId): string {
       return "Generic";
     case "codex":
       return "Codex";
+    case "claude-code":
+      return "Claude Code";
     case "chatgpt":
       return "ChatGPT";
     case "vscode":
       return "VS Code";
+    case "github-copilot":
+      return "GitHub Copilot";
   }
 }
 

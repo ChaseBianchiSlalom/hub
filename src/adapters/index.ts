@@ -1,5 +1,6 @@
 import type { AdapterId, ExportResult, ResolvedAssetBundle, ScenarioInput } from "../types.ts";
 import { exportChatGptBundle } from "./chatgpt.ts";
+import { exportClaudeCodeBundle } from "./claude-code.ts";
 import { exportCodexBundle } from "./codex.ts";
 import { exportGenericBundle } from "./generic.ts";
 import { exportGitHubCopilotBundle } from "./github-copilot.ts";
@@ -16,6 +17,8 @@ export function exportBundle(
       return exportGenericBundle(bundle, scenario, outDir);
     case "codex":
       return exportCodexBundle(bundle, scenario, outDir);
+    case "claude-code":
+      return exportClaudeCodeBundle(bundle, scenario, outDir);
     case "chatgpt":
       return exportChatGptBundle(bundle, scenario, outDir);
     case "vscode":

@@ -18,12 +18,12 @@ function runCli(args: string[], envOverrides: Record<string, string> = {}): stri
   });
 }
 
-test("hub validate passes against the repo", () => {
+test("ai-hub validate passes against the repo", () => {
   const output = runCli(["validate"]);
   assert.match(output, /hub structure looks valid/);
 });
 
-test("hub list returns the current assets by category", () => {
+test("ai-hub list returns the current assets by category", () => {
   const output = runCli(["list"]);
   assert.match(output, /skills/);
   assert.match(output, /brief-to-backlog/);
@@ -31,7 +31,7 @@ test("hub list returns the current assets by category", () => {
   assert.match(output, /ai-feature-delivery/);
 });
 
-test("hub resolve returns the dependency view for the playbook", () => {
+test("ai-hub resolve returns the dependency view for the playbook", () => {
   const output = runCli(["resolve", "ai-feature-delivery"]);
   assert.match(output, /Root Asset: playbook:ai-feature-delivery/);
   assert.match(output, /sop:engagment-intake/);
@@ -39,7 +39,7 @@ test("hub resolve returns the dependency view for the playbook", () => {
   assert.match(output, /skill:repo-onboarding/);
 });
 
-test("hub demo works for every current asset scenario", () => {
+test("ai-hub demo works for every current asset scenario", () => {
   const cases: Array<[string, string]> = [
     ["brief-to-backlog", "brief-to-backlog-poc"],
     ["delivery-risk-scan", "delivery-risk-scan-poc"],
@@ -60,7 +60,7 @@ test("hub demo works for every current asset scenario", () => {
   }
 });
 
-test("hub export generic creates a generic bundle", () => {
+test("ai-hub export generic creates a generic bundle", () => {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-generic-"));
   const output = runCli([
     "export",
@@ -79,7 +79,7 @@ test("hub export generic creates a generic bundle", () => {
   assert.equal(bundle.assets.length, 8);
 });
 
-test("hub export codex creates AGENTS.md with resolved dependencies", () => {
+test("ai-hub export codex creates AGENTS.md with resolved dependencies", () => {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-codex-"));
   runCli([
     "export",
@@ -97,7 +97,7 @@ test("hub export codex creates AGENTS.md with resolved dependencies", () => {
   assert.match(agentsMd, /delivery-risk-scan/);
 });
 
-test("hub export codex with no asset exports the whole hub globally", () => {
+test("ai-hub export codex with no asset exports the whole hub globally", () => {
   const codexHome = fs.mkdtempSync(path.join(os.tmpdir(), "hub-codex-full-home-"));
   const output = runCli(["export", "codex"], { CODEX_HOME: codexHome });
 
@@ -113,7 +113,7 @@ test("hub export codex with no asset exports the whole hub globally", () => {
   );
 });
 
-test("hub export codex --out with no asset creates a whole-hub local bundle", () => {
+test("ai-hub export codex --out with no asset creates a whole-hub local bundle", () => {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-codex-full-out-"));
   const output = runCli(["export", "codex", "--out", outDir]);
 
@@ -124,7 +124,7 @@ test("hub export codex --out with no asset creates a whole-hub local bundle", ()
   assert.ok(fs.existsSync(path.join(outDir, "context", "assets", "agent-solution-architect.md")));
 });
 
-test("hub export codex defaults to global AGENTS.md when --out is omitted", () => {
+test("ai-hub export codex defaults to global AGENTS.md when --out is omitted", () => {
   const codexHome = fs.mkdtempSync(path.join(os.tmpdir(), "hub-codex-default-home-"));
   const output = runCli(
     [
@@ -142,7 +142,7 @@ test("hub export codex defaults to global AGENTS.md when --out is omitted", () =
   assert.ok(fs.existsSync(path.join(codexHome, "ai-hub", "current", "AGENTS.md")));
 });
 
-test("hub export codex --global preserves user AGENTS.md content and updates a managed block", () => {
+test("ai-hub export codex --global preserves user AGENTS.md content and updates a managed block", () => {
   const codexHome = fs.mkdtempSync(path.join(os.tmpdir(), "hub-codex-home-"));
   const agentsPath = path.join(codexHome, "AGENTS.md");
   fs.writeFileSync(agentsPath, "# My Global Instructions\n\nKeep responses tight.\n", "utf8");
@@ -192,7 +192,7 @@ test("hub export codex --global preserves user AGENTS.md content and updates a m
   );
 });
 
-test("hub export codex rejects combining --global and --out", () => {
+test("ai-hub export codex rejects combining --global and --out", () => {
   const codexHome = fs.mkdtempSync(path.join(os.tmpdir(), "hub-codex-conflict-home-"));
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-codex-conflict-out-"));
 
@@ -215,7 +215,141 @@ test("hub export codex rejects combining --global and --out", () => {
   );
 });
 
-test("hub export chatgpt creates GPT-oriented files", () => {
+test("ai-hub export claude-code creates CLAUDE.md with resolved dependencies", () => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-claude-code-"));
+  runCli([
+    "export",
+    "claude-code",
+    "project-operator",
+    "--scenario",
+    "project-operator-poc",
+    "--out",
+    outDir,
+  ]);
+
+  const claudeMd = fs.readFileSync(path.join(outDir, "CLAUDE.md"), "utf8");
+  assert.match(claudeMd, /Adobe AI Hub/);
+  assert.match(claudeMd, /project-operator/);
+  assert.match(claudeMd, /@\.\/context\/assets\/skill-brief-to-backlog\.md/);
+  assert.ok(fs.existsSync(path.join(outDir, "context", "scenario.md")));
+  assert.ok(fs.existsSync(path.join(outDir, "context", "assets", "agent-project-operator.md")));
+});
+
+test("ai-hub export claude-code with no asset exports the whole hub globally", () => {
+  const claudeHome = fs.mkdtempSync(path.join(os.tmpdir(), "hub-claude-full-home-"));
+  const output = runCli(["export", "claude-code"], { CLAUDE_HOME: claudeHome });
+
+  assert.match(output, /Installed claude-code hub into Claude Code global memory/);
+  const claudeMd = fs.readFileSync(path.join(claudeHome, "CLAUDE.md"), "utf8");
+  assert.match(claudeMd, /Brief To Backlog/);
+  assert.match(claudeMd, /Project Operator/);
+  assert.match(
+    claudeMd,
+    new RegExp(`@${path.join(claudeHome, "ai-hub", "current", "context", "assets", "playbook-ai-feature-delivery.md")}`),
+  );
+  assert.ok(
+    fs.existsSync(
+      path.join(claudeHome, "ai-hub", "current", "context", "assets", "playbook-ai-feature-delivery.md"),
+    ),
+  );
+});
+
+test("ai-hub export claude-code --out with no asset creates a whole-hub local bundle", () => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-claude-full-out-"));
+  const output = runCli(["export", "claude-code", "--out", outDir]);
+
+  assert.match(output, /Exported claude-code hub bundle/);
+  const claudeMd = fs.readFileSync(path.join(outDir, "CLAUDE.md"), "utf8");
+  assert.match(claudeMd, /Asset Index/);
+  assert.match(claudeMd, /Repo Onboarding/);
+  assert.ok(fs.existsSync(path.join(outDir, "context", "assets", "agent-solution-architect.md")));
+});
+
+test("ai-hub export claude-code defaults to global CLAUDE.md when --out is omitted", () => {
+  const claudeHome = fs.mkdtempSync(path.join(os.tmpdir(), "hub-claude-default-home-"));
+  const output = runCli(
+    [
+      "export",
+      "claude-code",
+      "project-operator",
+      "--scenario",
+      "project-operator-poc",
+    ],
+    { CLAUDE_HOME: claudeHome },
+  );
+
+  assert.match(output, /Installed claude-code bundle into Claude Code global memory/);
+  assert.ok(fs.existsSync(path.join(claudeHome, "CLAUDE.md")));
+  assert.ok(fs.existsSync(path.join(claudeHome, "ai-hub", "current", "CLAUDE.md")));
+});
+
+test("ai-hub export claude-code --global preserves user CLAUDE.md content and updates a managed block", () => {
+  const claudeHome = fs.mkdtempSync(path.join(os.tmpdir(), "hub-claude-home-"));
+  const memoryPath = path.join(claudeHome, "CLAUDE.md");
+  fs.writeFileSync(memoryPath, "# My Claude Memory\n\nKeep responses terse.\n", "utf8");
+
+  runCli(
+    [
+      "export",
+      "claude-code",
+      "project-operator",
+      "--scenario",
+      "project-operator-poc",
+      "--global",
+      "--claude-home",
+      claudeHome,
+    ],
+    { CLAUDE_HOME: claudeHome },
+  );
+
+  runCli(
+    [
+      "export",
+      "claude-code",
+      "implementation-lead",
+      "--scenario",
+      "implementation-lead-poc",
+      "--global",
+      "--claude-home",
+      claudeHome,
+    ],
+    { CLAUDE_HOME: claudeHome },
+  );
+
+  const claudeMd = fs.readFileSync(memoryPath, "utf8");
+  assert.match(claudeMd, /My Claude Memory/);
+  assert.match(claudeMd, /Keep responses terse/);
+  assert.match(claudeMd, /<!-- adobe-ai-hub:start -->/);
+  assert.match(claudeMd, /implementation-lead/);
+  assert.doesNotMatch(claudeMd, /project-operator/);
+  assert.equal((claudeMd.match(/<!-- adobe-ai-hub:start -->/g) ?? []).length, 1);
+  assert.ok(fs.existsSync(path.join(claudeHome, "ai-hub", "current", "context", "scenario.md")));
+});
+
+test("ai-hub export claude-code rejects combining --global and --out", () => {
+  const claudeHome = fs.mkdtempSync(path.join(os.tmpdir(), "hub-claude-conflict-home-"));
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-claude-conflict-out-"));
+
+  assert.throws(
+    () =>
+      runCli(
+        [
+          "export",
+          "claude-code",
+          "project-operator",
+          "--scenario",
+          "project-operator-poc",
+          "--global",
+          "--out",
+          outDir,
+        ],
+        { CLAUDE_HOME: claudeHome },
+      ),
+    /Claude Code export cannot use both --global and --out/,
+  );
+});
+
+test("ai-hub export chatgpt creates GPT-oriented files", () => {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-chatgpt-"));
   runCli([
     "export",
@@ -232,7 +366,7 @@ test("hub export chatgpt creates GPT-oriented files", () => {
   assert.ok(fs.existsSync(path.join(outDir, "knowledge", "agent-solution-architect.md")));
 });
 
-test("hub export github-copilot creates native repository instruction files", () => {
+test("ai-hub export github-copilot creates native repository instruction files", () => {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-copilot-"));
   runCli([
     "export",
@@ -246,12 +380,88 @@ test("hub export github-copilot creates native repository instruction files", ()
 
   assert.ok(fs.existsSync(path.join(outDir, ".github", "copilot-instructions.md")));
   assert.ok(
+    fs.existsSync(path.join(outDir, ".github", "instructions", "project-operator.instructions.md")),
+  );
+  assert.ok(
     fs.existsSync(path.join(outDir, ".github", "prompts", "project-operator.prompt.md")),
   );
   assert.ok(fs.existsSync(path.join(outDir, ".github", "ai-hub", "agent-project-operator.md")));
 });
 
-test("hub export vscode creates a prompt pack and usage guide", () => {
+test("ai-hub export github-copilot with no asset exports a whole-hub local bundle", () => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-copilot-full-out-"));
+  const output = runCli(["export", "github-copilot", "--out", outDir]);
+
+  assert.match(output, /Exported github-copilot hub bundle/);
+  assert.ok(fs.existsSync(path.join(outDir, ".github", "copilot-instructions.md")));
+  assert.ok(fs.existsSync(path.join(outDir, ".github", "instructions", "adobe-ai-hub.instructions.md")));
+  assert.ok(fs.existsSync(path.join(outDir, ".github", "prompts", "adobe-ai-hub.prompt.md")));
+  assert.ok(fs.existsSync(path.join(outDir, ".github", "ai-hub", "playbook-ai-feature-delivery.md")));
+});
+
+test("ai-hub export github-copilot installs global VS Code and JetBrains instructions", () => {
+  const homeDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-copilot-home-"));
+  const copilotHome = path.join(homeDir, ".copilot");
+  const jetbrainsDir = path.join(homeDir, ".config", "github-copilot", "intellij");
+  const jetbrainsInstructionsPath = path.join(jetbrainsDir, "global-copilot-instructions.md");
+  fs.mkdirSync(jetbrainsDir, { recursive: true });
+  fs.writeFileSync(jetbrainsInstructionsPath, "# My JetBrains Instructions\n\nKeep Java changes small.\n", "utf8");
+
+  const output = runCli([
+    "export",
+    "github-copilot",
+    "--copilot-home",
+    copilotHome,
+    "--jetbrains-copilot-dir",
+    jetbrainsDir,
+  ]);
+
+  assert.match(output, /Installed github-copilot hub into GitHub Copilot global contexts/);
+  const vscodeInstructions = fs.readFileSync(
+    path.join(copilotHome, "instructions", "adobe-ai-hub.instructions.md"),
+    "utf8",
+  );
+  assert.match(vscodeInstructions, /applyTo: '\*\*'/);
+  assert.match(vscodeInstructions, /Adobe AI Hub/);
+  assert.match(vscodeInstructions, /Brief To Backlog/);
+
+  const jetbrainsInstructions = fs.readFileSync(jetbrainsInstructionsPath, "utf8");
+  assert.match(jetbrainsInstructions, /My JetBrains Instructions/);
+  assert.match(jetbrainsInstructions, /Keep Java changes small/);
+  assert.match(jetbrainsInstructions, /<!-- adobe-ai-hub:start -->/);
+  assert.equal((jetbrainsInstructions.match(/<!-- adobe-ai-hub:start -->/g) ?? []).length, 1);
+
+  assert.ok(
+    fs.existsSync(
+      path.join(copilotHome, "ai-hub", "current", ".github", "ai-hub", "skill-brief-to-backlog.md"),
+    ),
+  );
+});
+
+test("ai-hub export github-copilot rejects combining --global and --out", () => {
+  const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-copilot-conflict-out-"));
+
+  assert.throws(
+    () => runCli(["export", "github-copilot", "--global", "--out", outDir]),
+    /GitHub Copilot export cannot use both --global and --out/,
+  );
+});
+
+test("focused ai-hub export github-copilot requires --out", () => {
+  assert.throws(
+    () =>
+      runCli([
+        "export",
+        "github-copilot",
+        "project-operator",
+        "--scenario",
+        "project-operator-poc",
+      ]),
+    /Focused GitHub Copilot exports require --out/,
+  );
+});
+
+test("ai-hub export vscode creates a prompt pack and usage guide", () => {
   const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-vscode-"));
   runCli([
     "export",
@@ -268,24 +478,24 @@ test("hub export vscode creates a prompt pack and usage guide", () => {
   assert.ok(fs.existsSync(path.join(outDir, "prompts", "main.prompt.md")));
 });
 
-test("hub install-local creates a runnable wrapper in a target bin directory", () => {
+test("ai-hub install-local creates a runnable wrapper in a target bin directory", () => {
   const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-install-"));
   const binDir = path.join(baseDir, "bin");
   const output = runCli(["install-local", "--bin-dir", binDir]);
 
-  assert.match(output, /Installed hub command/);
-  const binaryPath = path.join(binDir, "hub");
+  assert.match(output, /Installed ai-hub command/);
+  const binaryPath = path.join(binDir, "ai-hub");
   assert.ok(fs.existsSync(binaryPath));
   const stat = fs.statSync(binaryPath);
   assert.equal(stat.isFile(), true);
   const wrapper = fs.readFileSync(binaryPath, "utf8");
   assert.match(wrapper, /ADOBE_AI_HUB_ROOT=/);
-  assert.match(wrapper, /exec env ADOBE_AI_HUB_ROOT=.*".*\/bin\/hub" "\$@"/);
+  assert.match(wrapper, /exec env ADOBE_AI_HUB_ROOT=.*".*\/bin\/ai-hub" "\$@"/);
   const listOutput = execFileSync(binaryPath, ["list"], { cwd: repoRoot, encoding: "utf8" });
   assert.match(listOutput, /skills/);
 });
 
-test("hub install-local --shell-setup bootstraps ~/bin and .zshrc in one command", () => {
+test("ai-hub install-local --shell-setup bootstraps ~/bin and .zshrc in one command", () => {
   const homeDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-home-"));
   const output = runCli(["install-local", "--shell-setup"], {
     HOME: homeDir,
@@ -293,10 +503,10 @@ test("hub install-local --shell-setup bootstraps ~/bin and .zshrc in one command
     ZDOTDIR: homeDir,
   });
 
-  assert.match(output, /Installed hub command/);
+  assert.match(output, /Installed ai-hub command/);
   assert.match(output, /Added PATH entry to shell rc|PATH entry already present in shell rc/);
 
-  const binaryPath = path.join(homeDir, "bin", "hub");
+  const binaryPath = path.join(homeDir, "bin", "ai-hub");
   assert.ok(fs.existsSync(binaryPath));
   assert.equal(fs.statSync(binaryPath).isFile(), true);
 
@@ -306,7 +516,7 @@ test("hub install-local --shell-setup bootstraps ~/bin and .zshrc in one command
   assert.match(zshrc, /export PATH="\$HOME\/bin:\$PATH"/);
 });
 
-test("installed hub works from outside the repo root", () => {
+test("installed ai-hub works from outside the repo root", () => {
   const homeDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-anywhere-home-"));
   const otherDir = fs.mkdtempSync(path.join(os.tmpdir(), "hub-anywhere-cwd-"));
 
@@ -316,7 +526,7 @@ test("installed hub works from outside the repo root", () => {
     ZDOTDIR: homeDir,
   });
 
-  const output = execFileSync(path.join(homeDir, "bin", "hub"), ["list"], {
+  const output = execFileSync(path.join(homeDir, "bin", "ai-hub"), ["list"], {
     cwd: otherDir,
     encoding: "utf8",
     env: {
